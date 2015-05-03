@@ -1,6 +1,27 @@
 <?php
 
 Class Report extends CI_Model {
+    /*
+     * return all reports
+     */
+
+    function all() {
+        $query = $this->db->get('reports');
+        return $query->result();
+    }
+
+    /*
+     * return report details
+     */
+
+    function report_details($report_id) {
+        $query = $this->db->get_where('report_details', array('report_id' => $report_id));
+        return $query->result();
+    }
+
+    /*
+     * create report and return created object 
+     */
 
     function create($patient_id, $created_at) {
         $data = array(
@@ -8,16 +29,33 @@ Class Report extends CI_Model {
             'created_at' => $created_at
         );
         try {
-        $query =  $this->db->insert('reports', $data);
+            $this->db->insert('reports', $data);
         } catch (Exception $exc) {
             echo $exc->getTraceAsString();
         }
-        
-        return $query;
+
+        $query = $this->db->get_where('reports', array('patient_id' => $patient_id, 'created_at' => $created_at));
+        //var_dump($query->result());
+        foreach ($query->result() as $row) {
+            $report_result = array(
+                'id' => $row->id,
+                'createad_at' => $row->created_at
+            );
+        }
+        return $report_result;
     }
 
     function delete($report_id) {
         
+    }
+
+    function insert_details($details_object) {
+        try {
+            $query = $this->db->insert_batch('report_details', $details_object);
+            return $query;
+        } catch (Exception $exc) {
+            echo $exc->getTraceAsString();
+        }
     }
 
 }
