@@ -9,6 +9,11 @@ Class Report extends CI_Model {
         $query = $this->db->get('reports');
         return $query->result();
     }
+    
+    function patient_reports($patient_id){
+        $query = $this->db->get_where('reports', array('patient_id' => $patient_id));
+        return $query->result();
+    }
 
     /*
      * return report details
@@ -46,7 +51,8 @@ Class Report extends CI_Model {
     }
 
     function delete($report_id) {
-        
+        $this->db->delete('report_details', array('report_id' => $report_id));
+        $this->db->delete('reports', array('id' => $report_id));
     }
 
     function insert_details($details_object) {

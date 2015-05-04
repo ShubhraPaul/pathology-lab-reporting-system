@@ -10,6 +10,8 @@ class Logout extends CI_Controller {
     }
 
     function index() {
+        $this->session->unset_userdata('logged_in');
+        session_destroy();
         $this->load->helper('form');
         $this->load->view('login_view');
     }

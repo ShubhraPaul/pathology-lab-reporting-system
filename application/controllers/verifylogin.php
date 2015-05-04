@@ -24,16 +24,16 @@ class VerifyLogin extends CI_Controller {
     else
     {
       //Go to private area
-      redirect('home', 'refresh');
+       redirect(base_url().'home', 'refresh');
     }
     
   }
   
-  function check_database($password)
+  function check_database()
   {
     
-    $username = $this->input->post('username');
-    $result = $this->user->login($username, $password);
+    $user = $this->input->post('user');
+    $result = $this->user->login($user['username'], $user['password']);
     if($result)
     {
       $sess_array = array();
@@ -45,12 +45,12 @@ class VerifyLogin extends CI_Controller {
         );
         $this->session->set_userdata('logged_in', $sess_array);
       }
-      return TRUE;
+      
+      redirect(base_url().'home', 'refresh');
     }
     else
     {
-      $this->form_validation->set_message('check_database', 'Invalid username or password');
-      return false;
+       $this->load->view('login_view');
     }
   }
 }

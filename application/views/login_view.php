@@ -5,13 +5,12 @@
   </head>
   <body>
     <h1>Simple Login with CodeIgniter</h1>
-    <?php echo validation_errors(); ?>
-    <?php echo form_open('verifylogin'); ?>
+    <form action="<?php echo base_url();?>verifylogin/check_database" method="post">
       <label for="username">Username:</label>
-      <input type="text" size="20" id="username" name="username"/>
+      <input type="text" size="20" id="username" name="user[username]" required/>
       <br/>
       <label for="password">Password:</label>
-      <input type="password" size="20" id="passowrd" name="password"/>
+      <input type="password" size="20" id="passowrd" name="user[password]" required/>
       <br/>
       <input type="submit" value="Login"/>
     </form>
