@@ -23,6 +23,11 @@ Class Report extends CI_Model {
         $query = $this->db->get_where('report_details', array('report_id' => $report_id));
         return $query->result();
     }
+    
+    function get_report($report_id){
+        $query = $this->db->get_where('reports', array('id' => $report_id));
+        return $query->result();
+    }
 
     /*
      * create report and return created object 
