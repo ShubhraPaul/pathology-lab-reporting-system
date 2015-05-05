@@ -35,8 +35,10 @@ class Patients extends CI_Controller {
     }
 
     function view_home_report($report_id) {
+        $session_data = $this->session->userdata('logged_in');
         $data['report'] = $this->report->report_details($report_id);
         $data['report_id'] = $report_id;
+        $data['username'] = $session_data['username'];
         $this->load->view('patients/home_report_detail', $data);
     }
 
@@ -50,14 +52,16 @@ class Patients extends CI_Controller {
                     'id' => $row->id,
                     'username' => $row->username,
                     'type' => $row->type,
-                    'phone' => $row->phone
+                    'phone' => $row->phone,
+                    'email' => $row->email
                 );
                 $this->session->set_userdata('logged_in', $sess_array);
             }
 
             redirect(base_url() . 'patients/home', 'refresh');
         } else {
-            $this->load->view('login_view');
+            $data['patientloginerror'] = 'Invalid username or password';
+            $this->load->view('login_view',$data);
         }
     }
 
@@ -113,13 +117,14 @@ class Patients extends CI_Controller {
         $report = $this->report->get_report($report_id);
         $date = $report[0]->created_at;
         $data = $this->report->report_details($report_id);
+        $user  = $this->user->get_user_of_report($report_id);
         $report_name_and_value = array();
         foreach ($data as $value) {
             $report_name_and_value[] = array('test_name' => $value->test_name, 'test_value' => $value->test_value);
         }
-        $session_data = $this->session->userdata('logged_in');
-        $name = $session_data['username'];
-        $phone = $session_data['phone'];
+        //$session_data = $this->session->userdata('logged_in');
+        $name = $user[0]->username;
+        $phone = $user[0]->phone;
         $pdf = new FPDF();
         $pdf->AddPage();
         $pdf->SetFont('Arial', '', 14);
@@ -142,22 +147,23 @@ class Patients extends CI_Controller {
     }
 
     function email_report($report_id) {
+        $session_data = $this->session->userdata('logged_in');
+        $data['username'] = $session_data['username'];
         $mail = new PHPMailer;
         $mail->isSMTP();                                      // Set mailer to use SMTP
         $mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
         $mail->SMTPAuth = true;                               // Enable SMTP authentication
-        $mail->Username = 'mudasserajaz@gmail.com';                 // SMTP username
-        $mail->Password = 'jhwntqzdxfraaiiv';                           // SMTP password
+        $mail->Username = 'pathologylabtest@gmail.com';                 // SMTP username
+        $mail->Password = 'mxidkswqicnhzopd';                           // SMTP password
         $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
         $mail->Port = 587;
         $mail->From = 'mudasserajaz@gmail.com';
         $mail->FromName = 'Pathology Lab';
-        $mail->addAddress('mudasserajaz@gmail.com', 'Joe User');             // Name is optional
-        $mail->addReplyTo('mudasserajaz@gmail.com', 'Information');
+        $mail->addAddress($session_data['email'], $session_data['username']);   
         $mail->isHTML(true);                                  // Set email format to HTML
 
-        $mail->Subject = 'Here is the subject';
-        $mail->Body = 'This is the HTML message body <b>in bold!</b>';
+        $mail->Subject = 'Lab Report';
+        $mail->Body = $this->mail_body($report_id);
 
         if (!$mail->send()) {
             $data['email_message'] = 'Email Sending Failed. Plese check receipt email is valid or not.';
@@ -165,9 +171,26 @@ class Patients extends CI_Controller {
             $this->load->view('patients/email_sent.php',$data);
         } else {
             $data['email_message'] = 'Report Sent to your email account.';
-            $data['report_id'] = $report_id;
+            $data['report_id'] = $report_id;         
             $this->load->view('patients/email_sent.php',$data);        
         }
+    }
+    
+    function mail_body($report_id){
+        $session_data = $this->session->userdata('logged_in');
+        $report = $this->report->get_report($report_id);
+        $report_detail = $this->report->report_details($report_id);
+        $mail_body = '<div>Patient Name: '.$session_data['username'].'</div><br/><div>Phone:'.$session_data['phone'].'</div><br/>';
+        $mail_body .= '<div>Date:'.$report[0]->created_at.'</div><br/>';
+        $mail_body .= '<table style="width:100%; border: 1px solid black; text-align: center;"><tr style="width:100%; border: 1px solid black; text-align: center;"><th style="border: 1px solid black; text-align: center;">Test Name</th><th style=" border: 1px solid black; text-align: center;">Value</th></tr>';
+        foreach ($report_detail as $value) {
+          $mail_body .= '<tr style="border: 1px solid black; text-align: center;"><td style="border: 1px solid black; text-align: center;">'.$value->test_name.'</td><td style="border: 1px solid black; text-align: center;">'.$value->test_value.'</td></tr>';
+        }
+        $mail_body .= '</table> <br/>';
+        $mail_body .= '<div><a href="'.base_url().'patients/print_report/'.$report_id.'">Download your report from this link</a></div>';
+        return $mail_body;
+        
+        
     }
 
 }

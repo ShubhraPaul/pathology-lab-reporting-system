@@ -3,7 +3,7 @@
 Class User extends CI_Model {
 
     function login($username, $password) {
-        $this->db->select('id, username, password');
+        $this->db->select('id, username, password,type');
         $this->db->from('users');
         $this->db->where('username', $username);
         $this->db->where('password', MD5($password));
@@ -18,8 +18,12 @@ Class User extends CI_Model {
         }
     }
     
+    function create_admin($admin){
+        $this->db->insert('users', $admin);
+    }
+    
     function patient_login($username, $password){
-        $this->db->select('id, username, password');
+        $this->db->select('id, username, password,email');
         $this->db->from('users');
         $this->db->where('username', $username);
         $this->db->where('password', MD5($password));
@@ -40,6 +44,11 @@ Class User extends CI_Model {
 
     function all_patients() {
         $query = $this->db->get_where('users', array('type' => '2')); //type 2 is for patients
+        return $query->result();
+    }
+    
+    function all_admins() {
+        $query = $this->db->get_where('users', array('type' => '1')); //type 2 is for patients
         return $query->result();
     }
 
@@ -64,6 +73,14 @@ Class User extends CI_Model {
             $this->db->delete('reports', array('id' => $value->id));
         }
         $this->db->delete('users', array('id' => $patient_id));
+    }
+    
+    function get_user_of_report($report_id){
+        $report_query = $this->db->get_where('reports', array('id' => $report_id));
+        $result = $report_query->result();
+        $user_query = $this->db->get_where('users', array('id' => $result[0]->patient_id));
+        return $user_query->result();
+        
     }
 
 }

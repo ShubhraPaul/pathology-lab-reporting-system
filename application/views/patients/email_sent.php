@@ -1,13 +1,15 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>Pathology</title>
-    </head>
+<?php $this->load->view("header_common.php"); ?>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            text-align: center;
+           
+        }
+    </style>
     <body>
-        
-        <div>
-            <a href="<?php echo base_url(); ?>patients/home">Home</a>
-        </div>
+        <?php $this->load->view("patients/patient_menu.php"); ?>
+        <div class="container" style="margin-top: 40px;">
         <h1><?php echo $email_message; ?></h1>
+        </div>
     </body>
 </html>

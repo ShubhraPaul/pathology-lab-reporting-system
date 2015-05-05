@@ -1,22 +1,15 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>Pathology Lab</title>
-    </head>
+<?php $this->load->view("header_common.php"); ?>
     <style>
         table, th, td {
             border: 1px solid black;
             text-align: center;
+           
         }
     </style>
     <body>
-        <div>
-            <a href="<?php echo base_url() ?>reports">Reports</a> | 
-            <a href="<?php echo base_url() ?>patients">Patients</a> |
-            <a href="<?php echo base_url() ?>home">Home</a>
-        </div>
+        <?php $this->load->view("admin_menu.php"); ?>
+        <div class="container" style="margin-top: 40px;">
         <h1>Patients</h1>
-        <div><a href="<?php echo base_url(); ?>patients/add">Add Patient</a></div>
         <table style="width:100%;">
             <tr>
                 <th>Patient Name</th>
@@ -61,5 +54,6 @@
                 </tr>
             <?php } ?> 
         </table>
+        </div>
     </body>
 </html>

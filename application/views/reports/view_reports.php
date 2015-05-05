@@ -1,35 +1,33 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>Reports</title>
-    </head>
+<?php $this->load->view("header_common.php"); ?>
     <style>
         table, th, td {
             border: 1px solid black;
+            text-align: center;
+           
         }
     </style>
     <body>
-        <div>
-            <a href="<?php echo base_url() ?>reports">Reports</a> | 
-            <a href="<?php echo base_url() ?>patients">Patients</a> |
-            <a href="<?php echo base_url() ?>home">Home</a>
-        </div>
+        <?php $this->load->view("admin_menu.php"); ?>
+        <div class="container" style="margin-top: 40px;">
         <h1>Reports</h1>
-        <table style="width:100%;">
+        <?php if(isset($patient)){ ?>
+        <div><b>Patient Name:</b> <?php echo $patient->username; ?> </div>
+        <?php } ?>
+        <table style="width:80%;">
             <tr>
-                <th>Patient</th>
+                <th>Patient ID</th>
                 <th>Created At</th> 
                 <th>Actions</th>
             </tr>
             <?php foreach ($reports as $value) { ?>
                 <tr>
-                    <td style="text-align: center"><?php
+                    <td style="text-align: center"><a href="<?php echo base_url(); ?>reports/view/<?php echo $value->patient_id; ?>"><?php
                         try {
                             echo $value->patient_id;
                         } catch (Exception $exc) {
                             echo $exc->getTraceAsString();
                         }
-                        ?></td>
+                        ?></a></td>
                     <td style="text-align: center"><?php
                         try {
                             echo $value->created_at;
@@ -37,9 +35,10 @@
                             echo $exc->getTraceAsString();
                         }
                         ?></td> 
-                    <td style="text-align: center"><a href="<?php echo base_url(); ?>reports/view_report/<?php echo $value->id; ?>">View</a> | <a href="">Edit</a> | <a href="<?php echo base_url(); ?>reports/delete/<?php echo $value->id; ?>">Delete</a></td>
+                    <td style="text-align: center"><a href="<?php echo base_url(); ?>reports/view_report/<?php echo $value->id; ?>">View Detail</a> | <a href="<?php echo base_url(); ?>reports/edit/<?php echo $value->id; ?>">Edit</a> | <a href="<?php echo base_url(); ?>reports/delete/<?php echo $value->id; ?>">Delete</a></td>
                 </tr>
             <?php } ?> 
         </table>
+        </div>
     </body>
 </html>

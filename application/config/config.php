@@ -22,6 +22,7 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PORT'])) {
     $protocol = (@$_SERVER['SERVER_PORT'] == 443) ? "https" : "http";
 }
 $config['base_url'] = @$protocol . "://" . @$_SERVER['HTTP_HOST'] . str_replace(basename(@$_SERVER['SCRIPT_NAME']), "", @$_SERVER['SCRIPT_NAME']).'index.php/';
+$config['base_directory'] = @$protocol . "://" . @$_SERVER['HTTP_HOST'] . str_replace(basename(@$_SERVER['SCRIPT_NAME']), "", @$_SERVER['SCRIPT_NAME']);
 
 /*
 |--------------------------------------------------------------------------

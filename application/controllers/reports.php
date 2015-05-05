@@ -9,6 +9,7 @@ class Reports extends CI_Controller {
     function __construct() {
         parent::__construct();
         $this->load->model('report', '', TRUE);
+        $this->load->model('user', '', TRUE);
     }
 
     function index() {
@@ -18,18 +19,16 @@ class Reports extends CI_Controller {
 
     function view($patient_id) {
         $data['reports'] = $this->report->patient_reports($patient_id);
+        $patient = $this->user->get_patient($patient_id);
+        $data['patient'] = $patient[0];
         $this->load->view('reports/view_reports', $data);
     }
+    
 
     function view_report($report_id) {
+        $data['report_id'] = $report_id;
         $data['report'] = $this->report->report_details($report_id);
         $this->load->view('reports/view_report', $data);
-    }
-
-    function edit() {
-        $this->session->unset_userdata('logged_in');
-        session_destroy();
-        redirect('home', 'refresh');
     }
 
     function add($patient_id) {
@@ -52,6 +51,20 @@ class Reports extends CI_Controller {
         }
         $inser_report_details = $this->report->insert_details($report_details);
         redirect(base_url() . 'reports', 'refresh');
+    }
+
+    function edit($report_id) {
+        $data['report'] = $this->report->report_details($report_id);
+        $data['report_id'] = $report_id;
+        $this->load->view('reports/edit_report', $data);
+    }
+
+    function update($report_id) {
+        $data = $this->input->post('test');
+        foreach ($data as $key => $value) {
+            $this->report->update($key, $value);
+        }
+        redirect(base_url() . 'reports/view_report/'.$report_id, 'refresh');
     }
 
     function delete($report_id) {

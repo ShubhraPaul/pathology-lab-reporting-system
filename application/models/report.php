@@ -9,8 +9,8 @@ Class Report extends CI_Model {
         $query = $this->db->get('reports');
         return $query->result();
     }
-    
-    function patient_reports($patient_id){
+
+    function patient_reports($patient_id) {
         $query = $this->db->get_where('reports', array('patient_id' => $patient_id));
         return $query->result();
     }
@@ -23,8 +23,8 @@ Class Report extends CI_Model {
         $query = $this->db->get_where('report_details', array('report_id' => $report_id));
         return $query->result();
     }
-    
-    function get_report($report_id){
+
+    function get_report($report_id) {
         $query = $this->db->get_where('reports', array('id' => $report_id));
         return $query->result();
     }
@@ -53,6 +53,11 @@ Class Report extends CI_Model {
             );
         }
         return $report_result;
+    }
+
+    function update($id, $test) {
+        $this->db->where('id', $id);
+        $this->db->update('report_details', array('test_name' => $test['name'], 'test_value' => $test['measurement']));
     }
 
     function delete($report_id) {
