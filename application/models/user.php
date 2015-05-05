@@ -19,7 +19,20 @@ Class User extends CI_Model {
     }
     
     function create_admin($admin){
-        $this->db->insert('users', $admin);
+        $this->db->select('id, username, password,type');
+        $this->db->from('users');
+        $this->db->where('username', $admin['username']);
+        $this->db->where('password', $admin['password']);
+        $this->db->where('type', '1');
+        $this->db->limit(1);
+        $query = $this->db->get();
+        if ($query->num_rows() == 1) {
+            return false;
+        } else {
+            $this->db->insert('users', $admin);
+            return true;
+        }
+        
     }
     
     function patient_login($username, $password){

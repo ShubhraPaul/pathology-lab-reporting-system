@@ -57,6 +57,9 @@
             <input type="tel" id="phone" class="form-control" name="admin[phone]" value="" placeholder="phone" autocomplete="off"/>
             <br/>
             <button class="btn btn-lg btn-primary btn-block" type="submit">Add</button>
+            <?php if(isset($error)){ ?>
+            <label><?php echo $error; ?></label>   
+             <?php } ?>
         </form>
     </div>
 </body>

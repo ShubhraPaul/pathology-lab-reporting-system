@@ -19,11 +19,13 @@ class Patients extends CI_Controller {
     }
 
     function index() {
+        $this->check_auth();
         $data['patients'] = $this->user->all_patients();
         $this->load->view('patients/view_patients', $data);
     }
 
     function home() {
+        $this->check_patient_auth();
         if ($this->session->userdata('logged_in')) {
             $session_data = $this->session->userdata('logged_in');
             $data['reports'] = $this->report->patient_reports($session_data['id']);
@@ -35,6 +37,7 @@ class Patients extends CI_Controller {
     }
 
     function view_home_report($report_id) {
+        $this->check_patient_auth();
         $session_data = $this->session->userdata('logged_in');
         $data['report'] = $this->report->report_details($report_id);
         $data['report_id'] = $report_id;
@@ -61,20 +64,23 @@ class Patients extends CI_Controller {
             redirect(base_url() . 'patients/home', 'refresh');
         } else {
             $data['patientloginerror'] = 'Invalid username or password';
-            $this->load->view('login_view',$data);
+            $this->load->view('login_view', $data);
         }
     }
 
     function view_report($report_id) {
+        $this->check_auth();
         $data['report'] = $this->report->report_details($report_id);
         $this->load->view('reports/view_report', $data);
     }
 
     function add() {
+        $this->check_auth();
         $this->load->view('patients/add_patient');
     }
 
     function create_patient() {
+        $this->check_auth();
         $patient = $this->input->post('patient');
         $patient['type'] = '2'; //type for patient 
         $patient['password'] = $this->generateRandomString(8);
@@ -94,6 +100,7 @@ class Patients extends CI_Controller {
     }
 
     function edit($id) {
+        $this->check_auth();
         $patient = $this->user->get_patient($id);
         foreach ($patient as $value) {
             $data['patient'] = $value;
@@ -102,12 +109,14 @@ class Patients extends CI_Controller {
     }
 
     function update($id) {
+        $this->check_auth();
         $patient = $this->input->post('patient');
         $this->user->update_patient($id, $patient);
         redirect(base_url() . 'patients', 'refresh');
     }
 
     function delete($patient_id) {
+        $this->check_auth();
         $this->user->delete_patient($patient_id);
         redirect(base_url() . 'patients', 'refresh');
     }
@@ -117,7 +126,7 @@ class Patients extends CI_Controller {
         $report = $this->report->get_report($report_id);
         $date = $report[0]->created_at;
         $data = $this->report->report_details($report_id);
-        $user  = $this->user->get_user_of_report($report_id);
+        $user = $this->user->get_user_of_report($report_id);
         $report_name_and_value = array();
         foreach ($data as $value) {
             $report_name_and_value[] = array('test_name' => $value->test_name, 'test_value' => $value->test_value);
@@ -159,7 +168,7 @@ class Patients extends CI_Controller {
         $mail->Port = 587;
         $mail->From = 'mudasserajaz@gmail.com';
         $mail->FromName = 'Pathology Lab';
-        $mail->addAddress($session_data['email'], $session_data['username']);   
+        $mail->addAddress($session_data['email'], $session_data['username']);
         $mail->isHTML(true);                                  // Set email format to HTML
 
         $mail->Subject = 'Lab Report';
@@ -168,29 +177,53 @@ class Patients extends CI_Controller {
         if (!$mail->send()) {
             $data['email_message'] = 'Email Sending Failed. Plese check receipt email is valid or not.';
             $data['report_id'] = $report_id;
-            $this->load->view('patients/email_sent.php',$data);
+            $this->load->view('patients/email_sent', $data);
         } else {
             $data['email_message'] = 'Report Sent to your email account.';
-            $data['report_id'] = $report_id;         
-            $this->load->view('patients/email_sent.php',$data);        
+            $data['report_id'] = $report_id;
+            $this->load->view('patients/email_sent', $data);
         }
     }
-    
-    function mail_body($report_id){
+
+    function mail_body($report_id) {
         $session_data = $this->session->userdata('logged_in');
         $report = $this->report->get_report($report_id);
         $report_detail = $this->report->report_details($report_id);
-        $mail_body = '<div>Patient Name: '.$session_data['username'].'</div><br/><div>Phone:'.$session_data['phone'].'</div><br/>';
-        $mail_body .= '<div>Date:'.$report[0]->created_at.'</div><br/>';
+        $mail_body = '<div>Patient Name: ' . $session_data['username'] . '</div><br/><div>Phone:' . $session_data['phone'] . '</div><br/>';
+        $mail_body .= '<div>Date:' . $report[0]->created_at . '</div><br/>';
         $mail_body .= '<table style="width:100%; border: 1px solid black; text-align: center;"><tr style="width:100%; border: 1px solid black; text-align: center;"><th style="border: 1px solid black; text-align: center;">Test Name</th><th style=" border: 1px solid black; text-align: center;">Value</th></tr>';
         foreach ($report_detail as $value) {
-          $mail_body .= '<tr style="border: 1px solid black; text-align: center;"><td style="border: 1px solid black; text-align: center;">'.$value->test_name.'</td><td style="border: 1px solid black; text-align: center;">'.$value->test_value.'</td></tr>';
+            $mail_body .= '<tr style="border: 1px solid black; text-align: center;"><td style="border: 1px solid black; text-align: center;">' . $value->test_name . '</td><td style="border: 1px solid black; text-align: center;">' . $value->test_value . '</td></tr>';
         }
         $mail_body .= '</table> <br/>';
-        $mail_body .= '<div><a href="'.base_url().'patients/print_report/'.$report_id.'">Download your report from this link</a></div>';
+        $mail_body .= '<div><a href="' . base_url() . 'patients/print_report/' . $report_id . '">Download your report from this link</a></div>';
         return $mail_body;
-        
-        
+    }
+
+    function forbidden() {
+        $this->load->view('forbidden');
+    }
+
+    function check_auth() {
+        if ($this->session->userdata('logged_in')) {
+            $session_data = $this->session->userdata('logged_in');
+            if ($session_data['type'] == '2') {
+                redirect(base_url() . 'patients/forbidden', 'refresh');
+            }
+        } else {
+            redirect(base_url() . 'login', 'refresh');
+        }
+    }
+    
+    function check_patient_auth(){
+        if ($this->session->userdata('logged_in')) {
+            $session_data = $this->session->userdata('logged_in');
+            if ($session_data['type'] == '1') {
+                redirect(base_url() . 'patients/forbidden', 'refresh');
+            }
+        } else {
+            redirect(base_url() . 'login', 'refresh');
+        }
     }
 
 }
